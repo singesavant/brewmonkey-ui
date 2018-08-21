@@ -30,7 +30,8 @@ import VueAxios from 'vue-axios'
 Vue.use(VueAxios, axios)
 
 // Change me!
-axios.defaults.baseURL = 'http://localhost:5000'
+// axios.defaults.baseURL = 'https://dashboard.singe-savant.com/brewmonkey-api/'
+axios.defaults.baseURL = 'http://localhost:5000/'
 
 Vue.use(BootstrapVue)
 Vue.config.productionTip = false

@@ -44,6 +44,22 @@
           <span class="current_temp" v-if="current_configuration.sensors.reservoir">{{ temperatures[current_configuration.sensors.reservoir] || '??' }}°C</span>
           <span class="current_temp" v-else variant="dark"><font-awesome-icon icon='times-circle'/></span>
 
+
+          <b-row v-if="current_configuration.kettles.reservoir == 'auto'" class=" justify-content-center">
+            <b-col cols=8>
+              <b-input-group>
+                <b-input-group-prepend is-text>
+                  <strong><font-awesome-icon icon='thermometer-half'/>&nbsp;cible</strong>
+                </b-input-group-prepend>
+                <b-form-input v-model="fridgeSet" type="number" min="0.00" step="0.1" :value="temperatures['FridgeSet']"></b-form-input>
+                <b-input-group-append>
+                  <b-btn v-on:click="setFridgeSetpoint" variant="info">Appliquer</b-btn>
+                </b-input-group-append>
+          </b-input-group>
+            </b-col>
+          </b-row>
+
+
         </b-card-body>
 
         <b-card-footer>
@@ -168,6 +184,11 @@ var configurations = {
     'sensors': {hlt: 'FridgeTemp', mt: 'BeerTemp', reservoir: 'Log1Temp'},
     'kettles': {reservoir: 'manual', hlt: 'auto', mt: 'auto', bk: 'disabled'}
   },
+  'reservoir': {
+    name: 'Chauffe-eau',
+    'sensors': {reservoir: 'FridgeTemp', mt: 'Log1Temp', bk: 'Log2Temp', cfc: 'Log3Temp'},
+    'kettles': {reservoir: 'auto', hlt: 'disabled', mt: 'disabled', bk: 'manual'}
+  },
   'mash': {
     'name': 'Empatage',
     'sensors': {hlt: 'FridgeTemp', mt: 'BeerTemp', reservoir: 'Log1Temp'},
@@ -175,7 +196,7 @@ var configurations = {
   },
   'boil': {
     'name': 'Ebullition',
-    'sensors': {reservoir: 'Log1Temp', hlt: 'Log2Temp', cfc: 'Log3Temp', bk: 'ChamberTemp'},
+    'sensors': {reservoir: 'Log1Temp', hlt: 'Log2Temp', cfc: 'Log3Temp', bk: 'FridgeTemp'},
     'kettles': {reservoir: 'manual', mt: 'disabled', hlt: 'manual', bk: 'auto'}
   }
 }
