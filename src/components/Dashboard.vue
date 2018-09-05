@@ -182,12 +182,12 @@ var configurations = {
   'preheat': {
     name: 'Préchauffe',
     'sensors': {hlt: 'FridgeTemp', mt: 'BeerTemp', reservoir: 'Log1Temp'},
-    'kettles': {reservoir: 'manual', hlt: 'auto', mt: 'auto', bk: 'disabled'}
+    'kettles': {reservoir: 'disabled', hlt: 'auto', mt: 'auto', bk: 'disabled'}
   },
   'reservoir': {
     name: 'Chauffe-eau',
     'sensors': {reservoir: 'FridgeTemp', mt: 'Log1Temp', bk: 'Log2Temp', cfc: 'Log3Temp'},
-    'kettles': {reservoir: 'auto', hlt: 'disabled', mt: 'disabled', bk: 'manual'}
+    'kettles': {reservoir: 'auto', hlt: 'disabled', mt: 'disabled', bk: 'disabled'}
   },
   'mash': {
     'name': 'Empatage',
