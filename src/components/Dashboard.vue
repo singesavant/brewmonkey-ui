@@ -2,7 +2,7 @@
 
 <template lang="html">
 
-  <b-container fluid>    
+  <b-container fluid class="full-height">
 
   <div class="dashboard">
     <b-alert :show="error"
@@ -31,34 +31,72 @@
 
   </div>
 
-  <div v-if="current_configuration != null">
+  <div v-if="current_configuration != null" class="vessels">
     <b-card-group deck class="mb-3">
+
       <!-- RESERVOIR -->
       <b-card no-body class="reservoir text-center">
 
         <b-card-header>
-          <h2>          <font-awesome-icon icon='tint' /> <br/>Réservoir</h2>
+          <h2><font-awesome-icon icon='tint' /> <br/>Réservoir</h2>
         </b-card-header>
 
-        <b-card-body>
-          <span class="current_temp" v-if="current_configuration.sensors.reservoir">{{ temperatures[current_configuration.sensors.reservoir] || '??' }}°C</span>
-          <span class="current_temp" v-else variant="dark"><font-awesome-icon icon='times-circle'/></span>
+        <b-card-body class="tank-hlt-body" align-v="end">
+
+          <div class="water"></div>
+
+          <b-row align-self="start" no-gutters>
+            <b-col cols="6" offset="6">
+              <!-- temp badge -->
+              <b-badge variant="info" class="temp-badge">
+                <span class="current_temp" v-if="current_configuration.sensors.reservoir">
+                  <font-awesome-icon icon='thermometer-half'/>&nbsp;{{ temperatures[current_configuration.sensors.reservoir] || '??' }}°C
+                </span>
+                <span class="current_temp" v-else variant="dark"><font-awesome-icon icon='times-circle'/></span>
+
+                <hr/>
+
+                <b-input-group>
+                  <b-input-group-prepend is-text>
+                    <strong>SV</strong>
+                  </b-input-group-prepend>
+
+                  <b-form-input style="width: 20%" v-model="fridgeSet" type="number" min="0.0" step="0.1" :value="temperatures['FridgeSet']"></b-form-input>
+                  <b-input-group-append>
+                    <b-btn v-on:click="setFridgeSetpoint" variant="dark"><font-awesome-icon icon='check'/></b-btn>
+                  </b-input-group-append>
+                </b-input-group>
+              </b-badge>
+              </b-col>
+            </b-row>
 
 
-          <b-row v-if="current_configuration.kettles.reservoir == 'auto'" class=" justify-content-center">
-            <b-col cols=8>
-              <b-input-group>
-                <b-input-group-prepend is-text>
-                  <strong><font-awesome-icon icon='thermometer-half'/>&nbsp;cible</strong>
-                </b-input-group-prepend>
-                <b-form-input v-model="fridgeSet" type="number" min="0.00" step="0.1" :value="temperatures['FridgeSet']"></b-form-input>
-                <b-input-group-append>
-                  <b-btn v-on:click="setFridgeSetpoint" variant="info">Appliquer</b-btn>
-                </b-input-group-append>
-          </b-input-group>
+          <b-row align-self="end">
+            <b-col cols="6" >
+
+              <!-- volume badge -->
+              <b-button-group>
+                <span class="current_volume" v-if="current_configuration.sensors.reservoir">
+                  <font-awesome-icon icon='tint'/>&nbsp;{{ hlt.volume/10.0 || '??' }}L
+
+                  <b-button-group vertical>
+                    <b-button variant="dark" v-b-modal.fillhlt><font-awesome-icon icon='sign-in-alt'/>&nbsp;Remplir</b-button>
+                    <b-button variant="dark"><font-awesome-icon icon='sign-out-alt'/>&nbsp;Transférer</b-button>
+                  </b-button-group>
+
+                  <!-- Modal Component -->
+                  <b-modal id="fillhlt" title="Remplir HLT jusqu'à...">
+                    <b-input-group>
+                      <b-form-input style="width: 20%" v-model="hlt.fill_target" type="number" min="0.0" step="10" :value="hlt.fill_target"></b-form-input>
+Litres
+                    </b-input-group>
+                  </b-modal>
+
+                </span>
+              </b-button-group>
+
             </b-col>
-          </b-row>
-
+            </b-row>
 
         </b-card-body>
 
@@ -209,6 +247,7 @@ export default {
       configurations: configurations,
       current_configuration: null,
       temperatures: {},
+      hlt: {},
       info: null,
       error: false,
       beerSet: null,
@@ -233,6 +272,11 @@ export default {
     this.interval = setInterval(function () {
       this.refreshTemperatures()
     }.bind(this), 2000)
+
+    // Set temperature poller
+    this.interval = setInterval(function () {
+      this.refreshHLT()
+    }.bind(this), 2000)
   },
 
   methods: {
@@ -254,6 +298,15 @@ export default {
         })
     },
 
+    refreshHLT: function () {
+      console.debug('Refreshing HLT...')
+      this.$http.get('/hlt')
+        .then((response) => {
+          this.hlt = response.data
+          console.debug(this.hlt)
+        })
+    },
+
     changeConfiguration: function (configurationName) {
       console.debug('Changing configuration to...' + configurationName)
 
@@ -271,6 +324,27 @@ export default {
 
 <style scoped>
 
+.temp-badge {
+    padding: 20px;
+}
+
+
+.water {
+    position: absolute;
+    background-color: #1CA3EC;
+    height: 20%;
+    width: 100%;
+    margin: none;
+    padding: none;
+    left: 0% !important;
+
+    bottom: 0;
+}
+
+.tank-hlt-body {
+    position: relative;
+}
+
 ul {
   list-style-type: none;
   padding: 0;
@@ -283,19 +357,22 @@ li {
 
 a {
   color: #42b983;
-  }
+}
 
 .reservoir, .mashtun, .bk {
   border: 3px solid #333;
   border-radius: 10px;
+  font-size: 20px;
+
+  height: 70vh;
 }
 
 h3 {
-margin-top: 20px;
-  }
+  margin-top: 20px;
+}
 
-.current_temp {
-  font-size: 5vw;
+.current_temp, .current_volume {
+  font-size: 2em;
   font-weight: bold;
 }
 

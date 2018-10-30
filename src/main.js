@@ -8,7 +8,7 @@ import 'bootstrap/dist/css/bootstrap.min.css'
 import 'bootstrap-vue/dist/bootstrap-vue.css'
 import { library } from '@fortawesome/fontawesome-svg-core'
 
-import { faThermometerHalf, faTimesCircle, faMicrochip, faHandPaper, faTint, faStroopwafel, faFire, faCog } from '@fortawesome/free-solid-svg-icons'
+import { faThermometerHalf, faTimesCircle, faMicrochip, faHandPaper, faTint, faStroopwafel, faFire, faCog, faCheck, faSignInAlt, faSignOutAlt } from '@fortawesome/free-solid-svg-icons'
 
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 
@@ -21,6 +21,9 @@ library.add(faFire)
 library.add(faHandPaper)
 library.add(faTimesCircle)
 library.add(faMicrochip)
+library.add(faCheck)
+library.add(faSignInAlt)
+library.add(faSignOutAlt)
 
 Vue.component('font-awesome-icon', FontAwesomeIcon)
 
@@ -31,6 +34,7 @@ Vue.use(VueAxios, axios)
 
 // Change me!
 // axios.defaults.baseURL = 'https://dashboard.singe-savant.com/brewmonkey-api/'
+// axios.defaults.auth = {username: 'blou', password: 'blou'}
 axios.defaults.baseURL = 'http://localhost:5000/'
 
 Vue.use(BootstrapVue)
