@@ -80,14 +80,19 @@
                   <font-awesome-icon icon='tint'/>&nbsp;{{ hlt.volume/10.0 || '??' }}L
 
                   <b-button-group vertical>
-                    <b-button variant="dark" v-b-modal.fillhlt><font-awesome-icon icon='sign-in-alt'/>&nbsp;Remplir</b-button>
-                    <b-button variant="dark"><font-awesome-icon icon='sign-out-alt'/>&nbsp;Transférer</b-button>
+                    <b-button v-if="hlt.fill_target == 0" variant="dark" v-b-modal.fillhlt><font-awesome-icon icon='sign-in-alt'/>&nbsp;Remplir</b-button>
+                    <div v-else>
+                      <b-progress :value="hlt.volume/10.0" :max="hlt.fill_target/10.0" show-value animated></b-progress>
+                      <b-button variant="danger" @click="fillHltTo(0)">Annuler !</b-button>
+                    </div>
+
+                    <!-- <b-button variant="dark"><font-awesome-icon icon='sign-out-alt'/>&nbsp;Transférer</b-button> -->
                   </b-button-group>
 
                   <!-- Modal Component -->
-                  <b-modal id="fillhlt" title="Remplir HLT jusqu'à...">
+                  <b-modal @ok="fillHltTo()" id="fillhlt" title="Remplir HLT jusqu'à...">
                     <b-input-group>
-                      <b-form-input style="width: 20%" v-model="hlt.fill_target" type="number" min="0.0" step="10" :value="hlt.fill_target"></b-form-input>
+                      <b-form-input style="width: 20%" v-model="hlt_fill_target" type="number" min="0" step="1" max="1000"></b-form-input>
 Litres
                     </b-input-group>
                   </b-modal>
@@ -248,6 +253,7 @@ export default {
       current_configuration: null,
       temperatures: {},
       hlt: {},
+      hlt_fill_target: 0,
       info: null,
       error: false,
       beerSet: null,
@@ -280,6 +286,15 @@ export default {
   },
 
   methods: {
+    fillHltTo: function (target = null) {
+      if (target == null) {
+        target = this.hlt_fill_target
+      }
+
+      this.$http.post('/hlt', {'target_liters': target})
+        .catch((error) => { this.error = error.data })
+    },
+
     setBeerSetpoint: function () {
       this.$http.post('/temp', {'beer': this.beerSet})
         .catch((error) => { this.error = error.data })
@@ -291,7 +306,7 @@ export default {
     },
 
     refreshTemperatures: function () {
-      console.debug('Refreshing temps...')
+      // console.debug('Refreshing temps...')
       this.$http.get('/temp')
         .then((response) => {
           this.temperatures = response.data
@@ -299,11 +314,10 @@ export default {
     },
 
     refreshHLT: function () {
-      console.debug('Refreshing HLT...')
+      // console.debug('Refreshing HLT...')
       this.$http.get('/hlt')
         .then((response) => {
           this.hlt = response.data
-          console.debug(this.hlt)
         })
     },
 
